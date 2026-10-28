@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Tu viens ?</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shrikhand&family=Figtree:wght@400;600;800&display=swap">
+<style>
+/* Layout: une carte unique au centre ; le fond et les couleurs changent selon le contexte (chaud, froid, pluie, week-end, perso) */
+:root{
+  color-scheme: light;
+  --bg1:#f6efe6; --bg2:#ead9c6; --glow:#fff7e8;
+  --card:#fffdf9; --ink:#2b1a10; --muted:#7a5d49; --line:#ecdcc8;
+  --title:#b4441b; --accent:#2f8f6b; --accent-ink:#ffffff; --accent-deep:#1e6b4e; --soft:#eef8f3;
+  --display:"Shrikhand", Georgia, serif;
+  --body:"Figtree", system-ui, -apple-system, sans-serif;
+}
+body[data-ctx="chaud"]{--bg1:#ffb347;--bg2:#ff7a3d;--glow:#fff1a8;--title:#c2410c;--accent:#5fd4e8;--accent-ink:#063b47;--accent-deep:#0e6f86;--soft:#e8fbff;--muted:#8a5a3c;--line:#f0dcc4}
+body[data-ctx="froid"]{--bg1:#cfe6ff;--bg2:#6b9bd1;--glow:#ffffff;--title:#1f4f8a;--accent:#e2583e;--accent-ink:#ffffff;--accent-deep:#a83822;--soft:#fdeee9;--muted:#4f6480;--line:#d9e4f2;--card:#fbfdff;--ink:#14243a}
+body[data-ctx="pluie"]{--bg1:#b8c7c9;--bg2:#5e7a80;--glow:#e6eff0;--title:#2c5560;--accent:#f2b630;--accent-ink:#3a2a00;--accent-deep:#b98200;--soft:#fff6dc;--muted:#566b70;--line:#dbe4e5;--card:#fbfcfc;--ink:#1b2b2f}
+body[data-ctx="weekend"]{--bg1:#d9f27a;--bg2:#5fb84a;--glow:#fbffd9;--title:#2f6b1f;--accent:#ff5f7e;--accent-ink:#ffffff;--accent-deep:#c23656;--soft:#ffeef2;--muted:#55704a;--line:#e1ecd0;--card:#fdfff8;--ink:#1d2b14}
+body[data-ctx="perso"]{--bg1:#ffd1dc;--bg2:#e86a8a;--glow:#fff0f4;--title:#b02a52;--accent:#2b2b6b;--accent-ink:#ffffff;--accent-deep:#14143f;--soft:#eeeefa;--muted:#80505f;--line:#f3dbe2;--card:#fffafb;--ink:#2e1520}
+
+*{box-sizing:border-box}
+html,body{min-height:100%}
+body{
+  margin:0; font-family:var(--body); color:var(--ink);
+  background:radial-gradient(circle at 85% -10%, var(--glow) 0 12%, transparent 42%),
+             linear-gradient(170deg, var(--bg1), var(--bg2) 75%);
+  background-attachment:fixed;
+  padding-left:max(16px, env(safe-area-inset-left,0px));
+  padding-right:max(16px, env(safe-area-inset-right,0px));
+  padding-block:28px 48px;
+  display:flex; justify-content:center; align-items:flex-start;
+  overflow-x:hidden;
+}
+.card{
+  width:100%; max-width:460px; background:var(--card);
+  border-radius:28px; padding:28px 22px 24px;
+  box-shadow:0 20px 50px rgba(40,20,0,.28); position:relative;
+}
+h1{font-family:var(--display);font-weight:400;font-size:clamp(2rem,8.5vw,2.7rem);line-height:1.07;margin:16px 0 10px;text-wrap:balance;color:var(--title)}
+h1 em{font-style:normal;color:var(--accent-deep)}
+h2{font-family:var(--display);font-weight:400;font-size:1.6rem;margin:0 0 6px;color:var(--title)}
+p{line-height:1.55;margin:0 0 16px;font-size:1.05rem}
+.lead{color:var(--muted);font-size:.98rem}
+.eyebrow{display:flex;align-items:center;gap:10px;font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.meter{flex:1;height:8px;border-radius:8px;background:var(--line);overflow:hidden}
+.meter i{display:block;height:100%;width:90%;background:linear-gradient(90deg,var(--bg1),var(--bg2));animation:fill 1.6s ease-out}
+@keyframes fill{from{width:8%}}
+.mascot{position:absolute;top:-16px;right:20px;font-size:2.1rem;animation:sway 3s ease-in-out infinite}
+@keyframes sway{50%{transform:rotate(12deg) translateY(4px)}}
+
+button,.btn{font:inherit;font-weight:800;font-size:1.02rem;border:0;cursor:pointer;border-radius:999px;padding:14px 24px;transition:transform .15s;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px}
+button:focus-visible,.btn:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid var(--accent-deep);outline-offset:2px}
+.yes{background:var(--accent);color:var(--accent-ink);box-shadow:0 5px 0 var(--accent-deep)}
+.yes:active{transform:translateY(4px);box-shadow:0 1px 0 var(--accent-deep)}
+.yes:disabled{opacity:.45;cursor:not-allowed}
+.ghost{background:var(--line);color:var(--muted)}
+.wa{background:#25d366;color:#05351a;box-shadow:0 5px 0 #128c4a}
+.wide{width:100%}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+.choice{display:flex;gap:12px;align-items:center;min-height:58px;position:relative;margin-top:4px}
+.no{background:var(--line);color:var(--muted);position:relative}
+
+.opts{display:grid;gap:10px;margin-bottom:16px}
+.opt{display:flex;gap:14px;align-items:center;text-align:left;width:100%;background:#fff;border:2px solid var(--line);border-radius:18px;padding:14px 16px;font-weight:600;color:var(--ink);border-radius:18px}
+.opt .ic{font-size:1.7rem;line-height:1}
+.opt[aria-pressed="true"]{border-color:var(--accent-deep);background:var(--soft)}
+
+label,.lbl{font-weight:800;font-size:.76rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);display:block;margin-bottom:6px}
+input,select,textarea{width:100%;font:inherit;font-size:1rem;padding:12px 14px;border-radius:14px;border:2px solid var(--line);background:#fff;color:var(--ink)}
+textarea{resize:vertical;min-height:84px;line-height:1.45}
+.field{display:grid;gap:0;margin-bottom:14px;min-width:0}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+@media (max-width:420px){.two{grid-template-columns:1fr}}
+.hint{font-size:.82rem;color:var(--muted);margin-top:5px}
+
+.ctxs{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:16px}
+@media (max-width:420px){.ctxs{grid-template-columns:repeat(3,1fr)}}
+.ctx{flex-direction:column;gap:4px;border-radius:16px;padding:10px 4px;background:#fff;border:2px solid var(--line);font-size:.8rem;font-weight:700;color:var(--ink)}
+.ctx span{font-size:1.5rem}
+.ctx[aria-pressed="true"]{border-color:var(--accent-deep);background:var(--soft)}
+.optedit{display:grid;grid-template-columns:58px 1fr;gap:8px;margin-bottom:8px}
+.optedit input:first-child{text-align:center;font-size:1.3rem;padding:8px}
+
+.box{background:var(--soft);border:2px dashed var(--accent);border-radius:16px;padding:14px 16px;font-size:.98rem;line-height:1.5;margin-bottom:14px;word-break:break-word;user-select:all}
+.sign{font-family:var(--display);color:var(--accent-deep);font-size:1.3rem;margin:16px 0 0}
+.stack{display:grid;gap:12px}
+.foot{text-align:center;margin-top:18px;font-size:.85rem;color:var(--muted)}
+.foot a{color:var(--accent-deep);font-weight:700}
+.toast{font-size:.88rem;color:var(--accent-deep);font-weight:700;min-height:1.2em}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body data-ctx="chaud">
+<main class="card" id="app"></main>
+
+<script>
+/* ---------- Contextes ---------- */
+const CTX={
+  chaud:{label:"Chaleur",icon:"☀️",mascot:"🍹",meter:"Alerte chaleur",val:"34 °C",
+    title:"{to}, il fait <em>beaucoup</em> trop chaud.",
+    body:"Le soleil ne nous laisse pas le choix : il faut se rafraîchir. Et ce serait bien meilleur avec toi. Tu viens prendre un truc bien frais avec moi ?",
+    opts:[["🍦","Une glace"],["🧊","Un jus bien glacé"],["🌅","Le coucher de soleil au bord de l'eau"]],
+    no:["Sûr(e) ?","Il fait trop chaud pour dire non","Réfléchis bien","Une glace quand même ?","Allez 🥺","Impossible"]},
+  froid:{label:"Froid",icon:"❄️",mascot:"☕",meter:"Alerte froid",val:"−3 °C",
+    title:"{to}, il fait un <em>froid</em> de canard.",
+    body:"Dehors, ça pique. Le meilleur remède, c'est un truc bien chaud et une bonne compagnie. On se réchauffe ensemble ?",
+    opts:[["☕","Un chocolat chaud"],["🍲","Une bonne soupe"],["🎬","Un film sous un plaid"]],
+    no:["Sûr(e) ?","Tu vas geler toute seule","Réfléchis au chocolat chaud","Allez 🥺","Le plaid t'attend","Impossible"]},
+  pluie:{label:"Pluie",icon:"🌧️",mascot:"☂️",meter:"Alerte pluie",val:"100 %",
+    title:"{to}, il pleut des <em>cordes</em>.",
+    body:"Impossible de faire quoi que ce soit dehors… sauf si on trouve un coin sympa à l'abri. Tu viens avec moi ?",
+    opts:[["🍕","Une pizza à l'abri"],["🎬","Un ciné"],["☕","Un café qui sent bon"]],
+    no:["Sûr(e) ?","Il pleut, t'as rien d'autre à faire","Réfléchis bien","J'ai un parapluie","Allez 🥺","Impossible"]},
+  weekend:{label:"Week-end",icon:"🎉",mascot:"🕶️",meter:"Niveau d'ennui",val:"Max",
+    title:"{to}, c'est le <em>week-end</em> !",
+    body:"Le week-end est bien trop court pour rester enfermé. On sort un peu, toi et moi ?",
+    opts:[["🍽️","Un resto"],["🚶","Une balade"],["🎶","Un concert ou une soirée"]],
+    no:["Sûr(e) ?","C'est le week-end pourtant","Réfléchis bien","Juste une heure ?","Allez 🥺","Impossible"]},
+  perso:{label:"Perso",icon:"💌",mascot:"💌",meter:"Envie de te voir",val:"100 %",
+    title:"{to}, j'ai une <em>question</em>.",
+    body:"J'aimerais bien passer un moment avec toi. Ça te dit ?",
+    opts:[["🍽️","Un dîner"],["🎬","Un film"],["☕","Un café"]],
+    no:["Sûr(e) ?","Vraiment ?","Réfléchis bien","Juste un café ?","Allez 🥺","Impossible"]}
+};
+const WHEN_DEFAULT="Aujourd'hui, Ce soir, Demain, Ce week-end";
+
+/* ---------- Encodage du lien (lettres et chiffres seulement) ---------- */
+const A="0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+function enc(o){const b=new TextEncoder().encode(JSON.stringify(o));let n=1n;for(const x of b)n=n*256n+BigInt(x);let s="";while(n>0n){s=A[Number(n%62n)]+s;n/=62n;}return s;}
+function dec(s){let n=0n;for(const c of s){const i=A.indexOf(c);if(i<0)throw 0;n=n*62n+BigInt(i);}const b=[];while(n>0n){b.unshift(Number(n%256n));n/=256n;}b.shift();return JSON.parse(new TextDecoder().decode(new Uint8Array(b)));}
+
+const $=id=>document.getElementById(id);
+const esc=s=>String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const app=$("app");
+const baseUrl=()=>location.href.split("#")[0];
+function copy(text,btn,label){
+  const done=t=>{btn.textContent=t;setTimeout(()=>btn.textContent=label,2200)};
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(text).then(()=>done("Copié ✓")).catch(()=>done("Copie impossible, sélectionne le texte"));
+  } else done("Sélectionne le texte pour copier");
+}
+
+/* ---------- Créateur ---------- */
+let draft={c:"chaud",f:"",t:"",p:"",b:CTX.chaud.body,o:CTX.chaud.opts.map(x=>x.slice()),w:WHEN_DEFAULT};
+try{const s=localStorage.getItem("tuviens-draft");if(s)Object.assign(draft,JSON.parse(s));}catch(e){}
+function save(){try{localStorage.setItem("tuviens-draft",JSON.stringify(draft));}catch(e){}}
+
+function renderCreator(){
+  document.body.dataset.ctx=draft.c;
+  const k=CTX[draft.c];
+  app.innerHTML=`
+    <div class="mascot" aria-hidden="true">${k.mascot}</div>
+    <div class="eyebrow">Générateur d'invitations</div>
+    <h1>Invite quelqu'un, <em>vite fait</em>.</h1>
+    <p class="lead">Choisis l'ambiance, remplis les prénoms et envoie le lien. La personne répond directement sur ton WhatsApp.</p>
+
+    <span class="lbl">Le contexte</span>
+    <div class="ctxs" role="group" aria-label="Contexte">
+      ${Object.entries(CTX).map(([id,c])=>`<button type="button" class="ctx" data-c="${id}" aria-pressed="${id===draft.c}"><span>${c.icon}</span>${c.label}</button>`).join("")}
+    </div>
+
+    <div class="two">
+      <div class="field"><label for="f">Ton prénom</label><input id="f" value="${esc(draft.f)}" placeholder="Hiram" autocomplete="given-name"></div>
+      <div class="field"><label for="t">Son prénom</label><input id="t" value="${esc(draft.t)}" placeholder="Harmony"></div>
+    </div>
+    <div class="field">
+      <label for="p">Ton numéro WhatsApp</label>
+      <input id="p" value="${esc(draft.p)}" placeholder="242 06 123 45 67" inputmode="tel" autocomplete="tel">
+      <div class="hint">Avec l'indicatif du pays, sans le +. Exemple Congo : 242…</div>
+    </div>
+    <div class="field"><label for="b">Ton message</label><textarea id="b">${esc(draft.b)}</textarea></div>
+
+    <span class="lbl">Les 3 propositions</span>
+    ${draft.o.map((o,i)=>`<div class="optedit"><input id="oi${i}" value="${esc(o[0])}" aria-label="Emoji ${i+1}" maxlength="4"><input id="ot${i}" value="${esc(o[1])}" aria-label="Proposition ${i+1}"></div>`).join("")}
+    <div class="field" style="margin-top:6px"><label for="w">Moments possibles</label><input id="w" value="${esc(draft.w)}"><div class="hint">Sépare-les par des virgules.</div></div>
+
+    <button class="yes wide" id="make">Créer l'invitation</button>
+    <div id="out"></div>
+    <div class="foot">Le message et les propositions restent modifiables avant d'envoyer.</div>`;
+
+  app.querySelectorAll(".ctx").forEach(b=>b.onclick=()=>{
+    read();
+    const old=CTX[draft.c];
+    draft.c=b.dataset.c;const n=CTX[draft.c];
+    if(!draft.b.trim()||draft.b===old.body)draft.b=n.body;
+    if(JSON.stringify(draft.o)===JSON.stringify(old.opts))draft.o=n.opts.map(x=>x.slice());
+    save();renderCreator();
+  });
+  app.querySelectorAll("input,textarea").forEach(el=>el.addEventListener("input",()=>{read();save();}));
+  $("make").onclick=make;
+}
+function read(){
+  draft.f=$("f").value.trim();draft.t=$("t").value.trim();draft.p=$("p").value.trim();
+  draft.b=$("b").value;draft.w=$("w").value;
+  draft.o=[0,1,2].map(i=>[$("oi"+i).value.trim()||"✨",$("ot"+i).value.trim()]);
+}
+function make(){
+  read();save();
+  const out=$("out");
+  if(!draft.f||!draft.t){out.innerHTML=`<p class="toast" style="margin-top:12px">Ajoute ton prénom et le sien pour créer l'invitation.</p>`;return;}
+  const data={c:draft.c,f:draft.f,t:draft.t,p:draft.p.replace(/\D/g,""),b:draft.b.trim(),
+    o:draft.o.filter(o=>o[1]),w:draft.w.split(",").map(s=>s.trim()).filter(Boolean)};
+  const link=baseUrl()+"#i"+enc(data);
+  const invite=`${data.t}, j'ai un petit truc pour toi 👀 ${link}`;
+  out.innerHTML=`
+    <div class="stack" style="margin-top:18px">
+      <h2>C'est prêt ✨</h2>
+      <div class="box" id="lnk">${esc(link)}</div>
+      <a class="btn wa wide" href="https://wa.me/?text=${encodeURIComponent(invite)}" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>
+      <div class="row"><button class="ghost" id="cp" style="flex:1">Copier le lien</button><a class="btn ghost" href="#i${enc(data)}" style="flex:1">Voir l'aperçu</a></div>
+      ${data.p?"":`<p class="hint">Sans ton numéro, la personne pourra seulement copier sa réponse.</p>`}
+    </div>`;
+  $("cp").onclick=e=>copy(link,e.target,"Copier le lien");
+  out.scrollIntoView({behavior:"smooth",block:"start"});
+}
+
+/* ---------- Invitation (côté personne invitée) ---------- */
+function renderInvite(d){
+  const k=CTX[d.c]||CTX.perso;
+  document.body.dataset.ctx=CTX[d.c]?d.c:"perso";
+  document.title=`${d.t}, tu viens ?`;
+  app.innerHTML=`
+    <div class="mascot" aria-hidden="true">${k.mascot}</div>
+    <div class="eyebrow">${esc(k.meter)} <div class="meter"><i></i></div> <b>${esc(k.val)}</b></div>
+    <section id="s1">
+      <h1>${k.title.replace("{to}",esc(d.t))}</h1>
+      <p>${esc(d.b)}</p>
+      <div class="choice" id="choice"><button class="yes" id="yes">Oui, avec plaisir</button><button class="no" id="no">Non</button></div>
+    </section>
+    <section id="s2" hidden>
+      <h1>Génial ! On fait <em>quoi</em> ?</h1>
+      <p>Choisis ce qui te tente le plus :</p>
+      <div class="opts">${d.o.map(o=>`<button class="opt" data-v="${esc(o[1])}" aria-pressed="false"><span class="ic">${esc(o[0])}</span><span>${esc(o[1])}</span></button>`).join("")}</div>
+      ${d.w.length?`<label for="when">Quand ?</label><select id="when" style="margin-bottom:16px">${d.w.map(w=>`<option>${esc(w)}</option>`).join("")}</select>`:""}
+      <button class="yes wide" id="go" disabled>C'est bon !</button>
+    </section>
+    <section id="s3" hidden>
+      <h1>Rendez-vous <em>pris</em> 🎉</h1>
+      <p>Envoie ta réponse à ${esc(d.f)} :</p>
+      <div class="box" id="msg"></div>
+      <div class="stack">
+        ${d.p?`<a class="btn wa wide" id="send" target="_blank" rel="noopener">Répondre sur WhatsApp</a>`:""}
+        <button class="ghost wide" id="cpm">Copier le message</button>
+      </div>
+      <p class="sign">${esc(d.f)}</p>
+    </section>
+    <div class="foot"><a href="${esc(baseUrl())}">Créer ta propre invitation</a></div>`;
+
+  const no=$("no"),box=$("choice");let n=0;
+  const dodge=e=>{if(e)e.preventDefault();
+    no.textContent=k.no[Math.min(n++,k.no.length-1)];
+    const W=box.clientWidth-no.offsetWidth;
+    no.style.position="absolute";no.style.left=Math.max(0,Math.random()*W)+"px";no.style.top=((Math.random()-.5)*60)+"px";
+    no.style.transform=`scale(${Math.max(.55,1-n*.08)})`;$("yes").style.transform=`scale(${Math.min(1.35,1+n*.06)})`;};
+  no.addEventListener("pointerenter",e=>{if(e.pointerType==="mouse")dodge(e)});
+  no.addEventListener("pointerdown",dodge);no.addEventListener("click",dodge);
+
+  $("yes").onclick=()=>{$("s1").hidden=true;$("s2").hidden=false;};
+  let pick="";
+  app.querySelectorAll(".opt").forEach(b=>b.onclick=()=>{
+    app.querySelectorAll(".opt").forEach(o=>o.setAttribute("aria-pressed","false"));
+    b.setAttribute("aria-pressed","true");pick=b.dataset.v;$("go").disabled=false;});
+  $("go").onclick=()=>{
+    const when=$("when")?", "+$("when").value.toLowerCase():"";
+    const m=`Oui ${d.f} ! 😊 Ça me dit bien : ${pick.charAt(0).toLowerCase()+pick.slice(1)}${when}.`;
+    $("msg").textContent=m;
+    if($("send"))$("send").href=`https://wa.me/${d.p}?text=${encodeURIComponent(m)}`;
+    $("cpm").onclick=e=>copy(m,e.target,"Copier le message");
+    $("s2").hidden=true;$("s3").hidden=false;};
+}
+
+/* ---------- Routage ---------- */
+function route(){
+  const h=location.hash.slice(1);
+  if(h.startsWith("i")){try{renderInvite(dec(h.slice(1)));window.scrollTo(0,0);return;}catch(e){}}
+  document.title="Tu viens ?";renderCreator();
+}
+addEventListener("hashchange",route);
+route();
+</script>
+</body>
+</html>
