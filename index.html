@@ -205,14 +205,21 @@ function make(){
   if(!draft.f||!draft.t){out.innerHTML=`<p class="toast" style="margin-top:12px">Ajoute ton prénom et le sien pour créer l'invitation.</p>`;return;}
   const data={c:draft.c,f:draft.f,t:draft.t,p:draft.p.replace(/\D/g,""),b:draft.b.trim(),
     o:draft.o.filter(o=>o[1]),w:draft.w.split(",").map(s=>s.trim()).filter(Boolean)};
-  const link=baseUrl()+"#i"+enc(data);
-  const invite=`${data.t}, j'ai un petit truc pour toi 👀 ${link}`;
+  /* On n'inclut dans le lien que ce qui diffère du modèle, pour un lien court */
+  const def=CTX[data.c], short={c:data.c,f:data.f,t:data.t};
+  if(data.p)short.p=data.p;
+  if(data.b!==def.body.trim())short.b=data.b;
+  if(JSON.stringify(data.o)!==JSON.stringify(def.opts))short.o=data.o;
+  if(data.w.join(",")!==WHEN_DEFAULT.split(",").map(s=>s.trim()).join(","))short.w=data.w;
+  const code="i"+enc(short);
+  const link=baseUrl()+"#"+code;
+  const invite=`${data.t}, j'ai un petit truc pour toi 👀\n\n${link}`;
   out.innerHTML=`
     <div class="stack" style="margin-top:18px">
       <h2>C'est prêt ✨</h2>
       <div class="box" id="lnk">${esc(link)}</div>
       <a class="btn wa wide" href="https://wa.me/?text=${encodeURIComponent(invite)}" target="_blank" rel="noopener">Envoyer sur WhatsApp</a>
-      <div class="row"><button class="ghost" id="cp" style="flex:1">Copier le lien</button><a class="btn ghost" href="#i${enc(data)}" style="flex:1">Voir l'aperçu</a></div>
+      <div class="row"><button class="ghost" id="cp" style="flex:1">Copier le lien</button><a class="btn ghost" href="#${code}" style="flex:1">Voir l'aperçu</a></div>
       ${data.p?"":`<p class="hint">Sans ton numéro, la personne pourra seulement copier sa réponse.</p>`}
     </div>`;
   $("cp").onclick=e=>copy(link,e.target,"Copier le lien");
@@ -222,6 +229,7 @@ function make(){
 /* ---------- Invitation (côté personne invitée) ---------- */
 function renderInvite(d){
   const k=CTX[d.c]||CTX.perso;
+  d.b=d.b||k.body; d.o=d.o||k.opts; d.w=d.w||WHEN_DEFAULT.split(",").map(s=>s.trim()); d.p=d.p||"";
   document.body.dataset.ctx=CTX[d.c]?d.c:"perso";
   document.title=`${d.t}, tu viens ?`;
   app.innerHTML=`
